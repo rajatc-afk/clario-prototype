@@ -3,7 +3,9 @@
 An interactive prototype for the Razorpay Design × NID assignment: an AI travel agent for Cleartrip.
 Clario turns many people's wishes into one trip everyone agrees on, and can book.
 
-## How to open it (1 minute)
+**Live prototype:** http://rajatchaple.work/clario-prototype/
+
+## Or open it offline (1 minute)
 1. Click the green **Code** button above → **Download ZIP**
 2. Unzip the folder
 3. Double-click **index.html** (opens in Chrome, Safari or Edge; no install needed)
