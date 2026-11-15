@@ -2460,6 +2460,27 @@ document.addEventListener('keydown', e => {
 
 /* ---------- capture mode: ?shot=name renders one state for screenshots ---------- */
 const SHOTS = {
+  e_sold:   ()=>{ S.g=gFresh(); S.g.people=[S.g.people[0],...FAMILY_FROM_VOICE.map(p=>({...p,needs:[...p.needs]}))]; S.screen='gresult'; S.g.sheet='stayh3'; },
+  e_fare:   ()=>{ S.g=gFresh(); S.g.people=[S.g.people[0],...FAMILY_FROM_VOICE.map(p=>({...p,needs:[...p.needs]}))]; S.screen='gresult'; S.g.sheet='fare'; },
+  e_voice:  ()=>{ S.g=gFresh(); S.screen='gq'; S.g.step=0; S.g.miss=true; },
+  e_empty:  ()=>{ S.g=gFresh(); S.g.people=[S.g.people[0],...FAMILY_FROM_VOICE.map(p=>({...p,needs:[...p.needs]}))]; S.screen='gq'; S.g.step=1; S.g.q='Atlantis'; },
+  e_add:    ()=>{ S.g=gFresh(); S.g.people=[S.g.people[0],...FAMILY_FROM_VOICE.map(p=>({...p,needs:[...p.needs]}))]; S.booked=true; S.shared=true; S.screen='gtrip'; S.tsheet='add'; },
+  e_remove: ()=>{ S.g=gFresh(); S.g.people=[S.g.people[0],...FAMILY_FROM_VOICE.map(p=>({...p,needs:[...p.needs]}))]; S.booked=true; S.shared=true; S.screen='gtrip'; S.tsheet='remove'; },
+  e_delay:  ()=>{ S.g=gFresh(); S.g.people=[S.g.people[0],...FAMILY_FROM_VOICE.map(p=>({...p,needs:[...p.needs]}))]; S.booked=true; S.shared=true; S.screen='gtrip'; S.alert='delay'; },
+  e_wl:     ()=>{ S.g=gFresh(); S.g.people=[S.g.people[0],...FAMILY_FROM_VOICE.map(p=>({...p,needs:[...p.needs]}))]; S.booked=true; S.shared=true; S.screen='gtrip'; S.alert='wl'; },
+  e_hotel:  ()=>{ S.g=gFresh(); S.g.people=[S.g.people[0],...FAMILY_FROM_VOICE.map(p=>({...p,needs:[...p.needs]}))]; S.booked=true; S.shared=true; S.screen='gtrip'; S.alert='hotel'; },
+  e_solo:   ()=>{ S.g=gFresh(); S.shared=true; S.roomDark=true; buildRoom(); S.roomStep=ROOM.length-1; S.screen='room'; },
+  e_chat:   ()=>{ S.g=gFresh(); S.g.people=[S.g.people[0],...FAMILY_FROM_VOICE.map(p=>({...p,needs:[...p.needs]}))]; S.shared=true; S.roomDark=true; buildRoom(); S.roomStep=ROOM.length-1; S.voted='b'; ROOM.forEach(roomEffect); S.roomExtra=[{me:true,m:'Can we change the hotel? Something cheaper',id:1},{m:clarioReply('change the hotel').m,acts:clarioReply('change the hotel').acts,id:2,wish:'Change the hotel'}]; S.screen='room'; },
+  e_menu:   ()=>{ S.g=gFresh(); S.g.people=[S.g.people[0],...FAMILY_FROM_VOICE.map(p=>({...p,needs:[...p.needs]}))]; S.booked=true; S.tripEnded=true; S.shared=true; S.roomDark=true; buildRoom(); S.roomStep=ROOM.length-1; S.voted='b'; ROOM.forEach(roomEffect); S.screen='room'; S.roomMenuOpen=true; },
+  e_closed: ()=>{ S.g=gFresh(); S.g.people=[S.g.people[0],...FAMILY_FROM_VOICE.map(p=>({...p,needs:[...p.needs]}))]; S.booked=true; S.tripEnded=true; S.roomClosed=true; S.shared=true; S.roomDark=true; buildRoom(); S.roomStep=ROOM.length-1; S.voted='b'; ROOM.forEach(roomEffect); S.screen='room'; },
+  e_homeend:()=>{ S.g=gFresh(); S.g.people=[S.g.people[0],...FAMILY_FROM_VOICE.map(p=>({...p,needs:[...p.needs]}))]; S.booked=true; S.tripEnded=true; S.roomClosed=true; S.shared=true; S.screen='home'; },
+  e_homebook:()=>{ S.g=gFresh(); S.g.people=[S.g.people[0],...FAMILY_FROM_VOICE.map(p=>({...p,needs:[...p.needs]}))]; S.booked=true; S.shared=true; S.screen='home'; },
+  e_pchat:  ()=>{ S.g=gFresh(); S.g.people=[S.g.people[0],...FAMILY_FROM_VOICE.map(p=>({...p,needs:[...p.needs]}))]; S.booked=true; S.shared=true; S.screen='pchat'; S.pchat=[{me:true,t:'Plan a surprise for Rohan 🎂'},{t:ptok(PCHAT_REPLY.surprise),k:'surprise'}]; },
+  e_split:  ()=>{ S.g=gFresh(); S.g.people=[S.g.people[0],...FAMILY_FROM_VOICE.map(p=>({...p,needs:[...p.needs]}))]; S.screen='gresult'; S.g.sheet='split'; },
+  e_bookpick:()=>{ S.g=gFresh(); S.g.people=[S.g.people[0],...FAMILY_FROM_VOICE.map(p=>({...p,needs:[...p.needs]}))]; S.screen='gresult'; S.g.sheet='book'; S.bookMode='pick'; S.bookItems=['fl','st']; },
+  e_trip:   ()=>{ S.g=gFresh(); S.g.people=[S.g.people[0],...FAMILY_FROM_VOICE.map(p=>({...p,needs:[...p.needs]}))]; S.booked=true; S.shared=true; S.screen='gtrip'; },
+  e_cons:   ()=>{ S.g=gFresh(); S.g.people=[S.g.people[0],...FAMILY_FROM_VOICE.map(p=>({...p,needs:[...p.needs]}))]; S.screen='gresult'; S.g.consOpen=true; },
+
   gelder:   ()=>{ S.g=gFresh(); S.g.people=[S.g.people[0],...FAMILY_FROM_VOICE.map(p=>({...p,needs:[...p.needs]}))]; roomPeople(); S.screen='gelder'; S.eld=0; },
   greview:  ()=>{ S.g=gFresh(); S.g.people=[S.g.people[0],...FAMILY_FROM_VOICE.map(p=>({...p,needs:[...p.needs]}))]; S.shared=true; S.roomDark=true; buildRoom(); S.roomStep=ROOM.length-1; S.voted='b'; ROOM.forEach(roomEffect); S.rvShare=['fl','st','dy','co']; S.rv=rvSeed(); S.rvMe={}; S.screen='room'; },
   gover:    ()=>{ ensureG(); S.screen='gresult'; S.budget=90000; S.g.budget=90000; },
