@@ -804,6 +804,7 @@ input{font:inherit;color:inherit}
 .epics{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}.epics button{background:#fff;border:2px solid #E6DCD3;border-radius:18px;overflow:hidden;text-align:left;color:#1A1A24}.epics .im{height:120px;background-size:cover;background-position:center}.epics b{display:block;font-size:20px;padding:10px 12px 0}.epics span{display:block;font-size:15px;color:#5A5A68;padding:2px 12px 12px}
 .edone{width:80px;height:80px;border-radius:50%;background:#FF4F17;color:#fff;font-size:40px;display:grid;place-items:center;margin:10px auto 14px}
 .eplan{margin-top:10px;background:#fff;border:2px solid #E6DCD3;border-radius:18px;padding:16px}.eph{font-size:17px;font-weight:700;margin-bottom:8px}.eplan>div:not(.eph){display:flex;gap:12px;align-items:flex-start;font-size:19px;padding:7px 0;line-height:1.35}
+.fmsg.mine{flex-direction:row-reverse}.fmsg.mine .fb{background:#FF4F17!important;color:#fff!important}.fmsg.mine .who{color:#FFE0D4!important}
 </style>
 </head>
 <body>
@@ -1513,9 +1514,45 @@ function vGElder(){ const p=eldPerson(), hi=S.eldHi!==false, st=S.eld||0; const 
      <button class="ebig call" data-a="eldCall">📞 ${L('Priya ko call karein','Call Priya')}</button>
    </div></div>`; }
 
+/* ---------- Clario's replies to anything typed (simulated intent understanding) ---------- */
+function clarioReply(raw){ const t=raw.toLowerCase(); const has=(...w)=>w.some(x=>t.includes(x));
+  const h=H(), f=F(); const P=(S.g||gFresh()).people; const kid=P.find(p=>p.age==='0–4'||p.age==='5–12'); const eld=P.find(p=>p.age==='60+');
+  if(has('hotel','stay','resort','room','accommodation')){
+    if(S.hotel!=='h2') return {m:`Sure. You’re at ${h.name}. Casa Sol Beach Stay is ${inr(h.price-HOTELS.h2.price)} cheaper and right on the beach, but has no separate kids’ pool. Riverside Retreat is calmer, ${inr(HOTELS.h3.price-h.price)} more. Want me to switch?`,acts:[['hotel:h2','Switch to Casa Sol'],['keep','Keep '+h.name.split(' ')[0]]],wish:'Change the hotel'};
+    return {m:`You’re at Casa Sol. Palm Grove has a shallow, fenced kids’ pool and ground-floor rooms for ${inr(HOTELS.h1.price-h.price)} more. Switch back?`,acts:[['hotel:h1','Switch to Palm Grove'],['keep','Keep Casa Sol']],wish:'Change the hotel'}; }
+  if(has('cheap','budget','expensive','cost','save','price','money','afford')){ const t0=total();
+    if(S.flight!=='f2') return {m:`The plan is ${inr(t0)}${t0>S.budget?`, ${inr(t0-S.budget)} over budget`:''}. The quickest saving: the 06:10 flight saves ${inr(f.price-FLIGHTS.f2.price)}, but means an early start. Or a cheaper stay saves up to ${inr(h.price-HOTELS.h2.price)}.`,acts:[['flight:f2','Take the 06:10 flight'],['hotel:h2','Cheaper stay']],wish:'Keep costs down'};
+    return {m:`You’re already on the cheapest flight. Switching to Casa Sol would save ${inr(Math.max(0,h.price-HOTELS.h2.price))} more. Everything else is already the best value I found.`,acts:S.hotel!=='h2'?[['hotel:h2','Cheaper stay']]:[],wish:'Keep costs down'}; }
+  if(has('flight','fly','early','morning','airport','late','departure')) return {m:`Your flight leaves at ${f.out[0]}. Options: 10:15 (lands before lunch), 06:10 (cheapest), or 13:40 (lands 3:05 pm). Which suits everyone?`,acts:[['flight:f1','10:15'],['flight:f2','06:10'],['flight:f3','13:40']],wish:'Flight timing'};
+  if(has('date','new year','dec','week','leave','holiday')) return {m:S.dates==='late'?'You’re on 26–30 Dec. Christmas week (19–23 Dec) is ₹18,000 cheaper. Switch?':'You’re on 19–23 Dec. New Year week (26–30 Dec) costs ₹18,000 more and is busier. Switch?',acts:[[S.dates==='late'?'dates:early':'dates:late',S.dates==='late'?'Move to 19–23 Dec':'Move to 26–30 Dec']],wish:'Change the dates'};
+  if(has('veg','jain','food','eat','spicy','restaurant','dinner','lunch')) return {m:'Noted. I’ve kept every meal stop veg-friendly and asked the hotel for Jain and less-spicy options. I’ll tell the restaurants in advance.',wish:'Veg-friendly food'};
+  if(has('walk','stairs','knee','wheelchair','tired','old','elder','grandma','grandpa','nani','nanaji','dadi','dada')) return {m:`Noted${eld?' for '+eld.name:''}. Ground-floor rooms, a car to the fort top, step-free church, and a rest after lunch every day. Day 3 can be made easier too.`,acts:[['easy:2','Make Day 3 easier']],wish:'Less walking'};
+  if(has('kid','child','baby','pool','nap','toddler','son','daughter')) return {m:`Noted${kid?' for '+kid.name:''}. Kids’ pool every morning, nap time kept free from 2–4 pm, and child seats in every cab.`,wish:'Kid-friendly days'};
+  if(has('dolphin','parasail','water','adventure','scuba','club','party','night','spa','market','shopping','add')) { const a=has('spa')?ALTS[3]:has('market','shopping')?ALTS[2]:ALTS[1]; return {m:`Good idea. I can add “${a[1]}” (${a[3]}) on Day 4. Nobody has to join who doesn’t want to.`,acts:[['add:'+ALTS.indexOf(a),'Add to Day 4']],wish:a[1]}; }
+  if(has('beach','sea','swim','safe')) return {m:'Candolim beach is 4 minutes on a flat path, with lifeguards till 6 pm. The first 20 m is shallow, fine for paddling with an adult.',wish:null};
+  if(has('weather','rain','hot','sun')) return {m:'Late December in Goa: about 31°C and sunny, no rain expected. I’ve kept outdoor stops before noon and after 4 pm.',wish:null};
+  if(has('cancel','refund')) return {m:'Everything is free to cancel till 17 Dec. After that, the hotel charges 1 night and the flight refunds only taxes. I’ll always show refunds before anything changes.',wish:null};
+  if(has('book','pay','split')) return {m:'When you’re ready, tap Book. You can book everything together, one thing at a time, or split it so everyone pays their own share.',wish:null};
+  if(has('vote','poll','decide','agree')) return {m:'I can run a quick vote. Tell me the two options and I’ll ask everyone in the room.',wish:null};
+  if(has('hi','hello','hey','thanks','thank')) return {m:'Happy to help! Tell me anything you’d like changed: stay, flights, dates, food, activities or pace.',wish:null};
+  return {m:'Got it. I’ve noted this for everyone and I’ll check how it fits the plan. Anything that changes the price or a booking, I’ll ask you first.',wish:raw.length>40?raw.slice(0,38)+'…':raw}; }
+function clarioAct(v,where){ const [k,x]=v.split(':'); let msg='';
+  if(k==='hotel'){ S.hotel=x; msg=`Switched to ${HOTELS[x].name}. Total now ${inr(total())}.`; }
+  if(k==='flight'){ S.flight=x; msg=`Switched to the ${FLIGHTS[x].out[0]} flight. Total now ${inr(total())}.`; }
+  if(k==='dates'){ S.dates=x; msg=`Moved to ${x==='late'?'26–30':'19–23'} Dec. Total now ${inr(total())}.`; }
+  if(k==='easy'){ CARMIN[2]='30 min'; msg='Day 3 now starts later, with a rest after lunch and less time in the car.'; }
+  if(k==='add'){ const a=ALTS[+x]; S.gp=S.gp||{rm:[],swaps:{},adds:{},sheet:null}; (S.gp.adds[3]=S.gp.adds[3]||[]).push({e:a[0],n:a[1],info:a[2],c:a[3]}); msg=`Added “${a[1]}” to Day 4.`; }
+  if(k==='keep') msg='No change. Keeping the plan as it is.';
+  return msg+(where==='room'&&k!=='keep'?' Everyone in the room can see the update.':''); }
+function roomPushText(text){ S.roomExtra=S.roomExtra||[]; const id=Date.now(); S.roomExtra.push({me:true,m:text,id}); S.roomTyping=true; S._roomScroll=true; render();
+  later(()=>{ const r=clarioReply(text); S.roomTyping=false; S.roomExtra.push({m:r.m,acts:r.acts||[],id:id+1,wish:r.wish}); S._roomScroll=true; render(); },1000); }
+function vRoomExtra(){ const X=S.roomExtra||[]; return X.map(e=>e.me?`<div class="fmsg mine">${av('priya',30)}<div class="fb"><div class="who">You</div>${e.m.replace(/</g,'&lt;')}</div></div>`
+  :`<div class="cmsg"><div class="cav">${MARK(16,'#FFFFFF')}</div><div class="cb"><div class="who">Clario</div>${e.m}${e.done?`<div class="notechip" style="margin-top:8px">${MARK(11)} ${e.done}</div>`:(e.acts&&e.acts.length?`<div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap">${e.acts.map(([v,l],i)=>`<button class="btn btn-sm ${i?'gno':'gok'}" data-a="rxAct" data-v="${e.id}|${v}">${l}</button>`).join('')}</div>`:'')}${e.wish&&!e.done?`<div class="tiny faint mt4">Noted on the wish board: “${e.wish}”</div>`:''}</div></div>`).join('')
+  +(S.roomTyping?`<div class="typing">${MARK(12,'grad')} Clario is typing<span class="dots"><i></i><i></i><i></i></span></div>`:''); }
+
 function vRoom(){
   const shown=ROOM.slice(0,S.roomStep+1);
-  const wishes=shown.filter(e=>e.wish).map(e=>e.wish);
+  const wishes=shown.filter(e=>e.wish).map(e=>e.wish).concat((S.roomExtra||[]).filter(e=>e.wish&&!e.me).map(e=>['priya',e.wish]));
   const heard=new Set(wishes.map(w=>w[0]));
   const typing=S.roomStep>=0 && S.roomStep<ROOM.length-1 && !(ROOM[S.roomStep].t==='poll'&&!S.voted) && ROOM[S.roomStep+1] && ROOM[S.roomStep+1].k;
   return `<div class="screen ${S.roomDark?'roomdark':''}">
@@ -1529,12 +1566,12 @@ function vRoom(){
       ${S.boardOpen?`<div class="wishes">${wishes.length?wishes.map(w=>`<span class="wish">${av(w[0],18)} ${w[1]}</span>`).join(''):'<span class="tiny faint">Clario will pin wishes here as people talk</span>'}${heard.size<roomPeople().length?`<span class="wish wait">Waiting: ${roomPeople().filter(p=>!heard.has(p.id)).map(p=>p.name).join(', ')}</span>`:''}</div>`:''}
     </div>
     <div class="scroll chat">
-      ${shown.map(vRoomEvent).join('')}${vReviewBlock()}
+      ${shown.map(vRoomEvent).join('')}${vReviewBlock()}${vRoomExtra()}
       ${typing?`<div class="typing">${av(ROOM[S.roomStep+1].k,18)} ${MEM[ROOM[S.roomStep+1].k].n} is typing<span class="dots"><i></i><i></i><i></i></span></div>`:''}
     </div>
     <div class="cmdbar">
       <div class="cmdchips">${S.rv?'':`<button class="rvcta" data-a="rvOpen">📋 Share plan for review</button>`}<button data-a="roomToPlan">See plan</button></div>
-      ${S.roomClosed?'':`<div class="cmdrow"><div class="in">${av('priya',22)}<input placeholder="Message everyone + Clario…"></div>`}${S.roomClosed?'':`<button class="btn btn-ai" data-a="roomSend" style="height:44px;width:48px;padding:0">${I.send}</button></div>`}
+      ${S.roomClosed?'':`<div class="cmdrow"><div class="in">${av('priya',22)}<input id="roomtype" placeholder="Message everyone + Clario…" autocomplete="off"></div>`}${S.roomClosed?'':`<button class="btn btn-ai" data-a="roomSend" style="height:44px;width:48px;padding:0">${I.send}</button></div>`}
     </div>
     ${S.roomMenuOpen?vRoomMenu():''}${vRvSheet()}
   </div>`;
@@ -1564,7 +1601,7 @@ function vPChat(){
    <div class="ghead"><button class="iconbtn g" data-a="goHome" aria-label="Back">${I.back}</button><div class="gbrand">${MARK(18,'grad')} Clario</div><span style="width:36px"></span></div>
    <div class="scroll gbody pchat">
      <div class="cmsg"><div class="cav">${MARK(16,'#FFFFFF')}</div><div class="cb"><div class="who">Clario</div>Hi Priya! This chat is just between us, the group can’t see it. Ask me anything about your Goa trip, or plan something new.</div></div>
-     ${m.map(x=>x.me?`<div class="pme">${x.t}</div>`:`<div class="cmsg"><div class="cav">${MARK(16,'#FFFFFF')}</div><div class="cb"><div class="who">Clario</div>${x.t}${x.k==='surprise'?`<div class="row" style="gap:8px;margin-top:8px"><button class="btn btn-sm gok" data-a="pHold">Hold it</button><button class="btn btn-sm gno" data-a="soon" data-v="Other surprise ideas">Other ideas</button></div>`:''}</div></div>`).join('')}
+     ${m.map(x=>x.me?`<div class="pme">${x.t}</div>`:`<div class="cmsg"><div class="cav">${MARK(16,'#FFFFFF')}</div><div class="cb"><div class="who">Clario</div>${x.t}${x.acts&&x.acts.length&&!x.done?`<div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap">${x.acts.map(([v,l],i)=>`<button class="btn btn-sm ${i?'gno':'gok'}" data-a="pxAct" data-v="${x.id}|${v}">${l}</button>`).join('')}</div>`:''}${x.done?`<div class="notechip" style="margin-top:8px">${MARK(11)} ${x.done}</div>`:''}${x.k==='surprise'?`<div class="row" style="gap:8px;margin-top:8px"><button class="btn btn-sm gok" data-a="pHold">Hold it</button><button class="btn btn-sm gno" data-a="soon" data-v="Other surprise ideas">Other ideas</button></div>`:''}</div></div>`).join('')}
      ${S.pTyping?`<div class="typing" style="color:#A9A9B8">${MARK(12,'grad')} Clario is typing<span class="dots"><i></i><i></i><i></i></span></div>`:''}
    </div>
    <div class="gpbar"><div class="gtabs" style="margin:0 0 8px;padding:0">${PCHAT_SUG.map(([k,l])=>`<button data-a="pAsk" data-v="${k}">${ptok(l)}</button>`).join('')}</div>
@@ -1998,6 +2035,7 @@ const GA={
   closeRoom(){ S.roomClosed=true; S.roomMenuOpen=false; toast('Trip room closed 🔒','Chat history, photos and bills are saved'); S._keepScroll=true; render(); },
   openPChat(){ S.screen='pchat'; S.pchat=S.pchat||[]; render(); },
   pAsk(k){ const l=ptok((PCHAT_SUG.find(x=>x[0]===k)||[])[1]); pPush(l,k); },
+  pxAct(v){ const [id,act]=v.split('|'); const e=(S.pchat||[]).find(x=>String(x.id)===id); if(!e) return; e.done=clarioAct(act,'p'); S._roomScroll=true; render(); },
   pSend(){ const el=document.getElementById('ptype'); const v=(el&&el.value.trim())||''; if(!v) return; pPush(v,null); },
   pHold(){ toast('Dinner held for Day 4, 8 pm 🕯️','Only you can see this booking'); keep(); render(); },
   gFrom(v){ S.g.from=v; S._keepScroll=true; render(); },
@@ -2044,7 +2082,7 @@ const GA={
   gSwapBack(){ S.g.swapAck=true; S.dudhsagar=true; toast('Dudhsagar is back on Day 3','I’ll book a jeep with proper seats'); keep(); render(); }
 };
 function pPush(text,k){ S.pchat.push({me:true,t:text}); S.pTyping=true; S._roomScroll=true; render();
-  later(()=>{ S.pTyping=false; S.pchat.push({t:k?ptok(PCHAT_REPLY[k]):'Got it. I’ll look into that and come back with options in a minute. (Typed replies are simulated in this prototype.)',k}); S._roomScroll=true; render(); },1100); }
+  later(()=>{ S.pTyping=false; const rr=k?null:clarioReply(text); S.pchat.push({t:k?ptok(PCHAT_REPLY[k]):rr.m,k,acts:rr?rr.acts:null,id:Date.now()}); S._roomScroll=true; render(); },1100); }
 function gKeepName(){ const el=document.getElementById('gaddname'); if(el&&S.g.add) S.g.add.name=el.value; }
 
 /* ---------- REVIEW ---------- */
@@ -2379,7 +2417,8 @@ const A = {
   toggleBoard(){ S.boardOpen=!S.boardOpen; S._keepScroll=true; render(); },
   roomSkip(){ clearTimers(); const pi=ROOM.findIndex(e=>e.t==='poll'); if(!S.voted&&pi>=0){ S.roomStep=pi; ROOM.slice(0,pi+1).forEach(roomEffect); } else { S.roomStep=ROOM.length-1; ROOM.forEach(roomEffect); S.roomDone=true; } S._roomScroll=true; render(); },
   roomToPlan(){ if(S.roomFrom==='gplan'){ S.roomFrom=null; S.screen='gplan'; render(); return; } if(S.roomFrom==='home'){ S.roomFrom=null; S.screen='home'; render(); return; } if(S.roomDark&&S.g){ S.screen='gresult'; render(); return; } S.screen='plan'; S.highlight='day3'; render(); document.querySelector('.scroll')?.scrollTo(0,0); },
-  roomSend(){ toast('Message sent to the group','Clario reads the room and notes what matters'); keep(); render(); },
+  roomSend(){ const el=document.getElementById('roomtype'); const v=(el&&el.value.trim())||''; if(!v){ toast('Type a message first','e.g. “Can we get a cheaper hotel?”'); keep(); render(); return; } roomPushText(v); },
+  rxAct(v){ const [id,act]=v.split('|'); const e=(S.roomExtra||[]).find(x=>String(x.id)===id); if(!e) return; e.done=clarioAct(act,'room'); S._roomScroll=true; render(); },
   applyMom(){ const b=total(), sp=snap(); S.cruise=false; S.momApplied=true; S.highlight='day4'; toast('Day 4 updated for Mummy 💛', deltaMsg(b)+' · she’ll be notified', sp); keep(); render(); },
   dismissMom(){ S.momNote=false; toast('Kept the cruise','I’ll let her know there are seats inside'); keep(); render(); },
   book(){ startBooking(); },
@@ -2416,6 +2455,7 @@ document.addEventListener('keydown', e => {
   if (e.target.id==='cmd' && e.key==='Enter' && e.target.value.trim()){ A.freeText(e.target.value.trim()); }
   if (e.target.id==='gtype' && e.key==='Enter'){ A.gTypeSend(); }
   if (e.target.id==='ptype' && e.key==='Enter'){ A.pSend(); }
+  if (e.target.id==='roomtype' && e.key==='Enter'){ A.roomSend(); }
 });
 
 /* ---------- capture mode: ?shot=name renders one state for screenshots ---------- */
